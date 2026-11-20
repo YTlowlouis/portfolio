@@ -1,0 +1,83 @@
+---
+import '~/styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const SITE_NAME = 'Prénom Nom';
+const { title, description = 'Photographies et programmes.' } = Astro.props;
+const fullTitle = title ? `${title} · ${SITE_NAME}` : SITE_NAME;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#efeee9" />
+    <title>{fullTitle}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <header class="site-header">
+      <a class="site-name" href="/">{SITE_NAME}</a>
+      <nav aria-label="Principale">
+        <ul>
+          <li><a href="/a-propos">À propos</a></li>
+          <li><a href="/a-propos#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main id="contenu">
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding: clamp(1.25rem, 3vw, 2rem) var(--gutter) 0;
+  }
+
+  .site-name {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  nav ul {
+    display: flex;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  nav a {
+    text-decoration: none;
+  }
+
+  nav a:hover,
+  .site-name:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  main {
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding: 0 var(--gutter) clamp(4rem, 10vw, 8rem);
+  }
+</style>

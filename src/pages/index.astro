@@ -1,36 +1,49 @@
 ---
-/**
- * Page provisoire de l'étape 1 : elle ne sert qu'à vérifier que la collection
- * se charge, que le tri par date fonctionne et que toMeta() rend bien six champs
- * pour chaque élément. Elle sera remplacée par la grille à l'étape 2.
- */
-import { getCollection } from 'astro:content';
+import Base from '~/layouts/Base.astro';
+import WorkCard from '~/components/WorkCard.astro';
+import { getWorks, workHref } from '~/lib/works';
 import { toMeta } from '~/lib/meta';
 
-const works = (await getCollection('works', ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
+const works = await getWorks();
 ---
 
-<!doctype html>
-<html lang="fr">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Portfolio · étape 1</title>
-  </head>
-  <body>
-    <h1>Contenu chargé : {works.length} éléments</h1>
-    <ol>
-      {
-        works.map((work) => (
-          <li>
-            <strong>{work.data.title}</strong> ({work.data.kind}, id « {work.id} »)
-            <br />
-            {toMeta(work).map((field) => field.value).join(' · ')}
-          </li>
-        ))
-      }
-    </ol>
-  </body>
-</html>
+<Base>
+  <h1 class="intro">Photographies et programmes, décrits de la même façon.</h1>
+
+  <div class="grid">
+    {
+      works.map((work, index) => (
+        <WorkCard
+          href={workHref(work)}
+          title={work.data.title}
+          image={work.data.cover}
+          meta={toMeta(work)}
+          priority={index < 3}
+        />
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .intro {
+    max-width: 14ch;
+    margin: clamp(3rem, 10vw, 9rem) 0 clamp(3.5rem, 9vw, 8rem);
+    font-family: var(--font-serif);
+    font-size: var(--display-size);
+    font-weight: 400;
+    font-variation-settings: 'opsz' 96;
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  /* Trois rangées de grille par carte (image, titre, métadonnées),
+     reprises par chaque carte en subgrid. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    column-gap: clamp(1.5rem, 4vw, 4rem);
+    row-gap: clamp(3.5rem, 8vw, 6.5rem);
+  }
+</style>

@@ -1,0 +1,89 @@
+/* Polices auto-hébergées (paquets npm Fontsource), servies depuis le site. */
+@import '@fontsource-variable/bodoni-moda/opsz.css';
+@import '@fontsource-variable/ibm-plex-sans/index.css';
+
+:root {
+  /* Couleurs. Pas d'accent : la couleur vient des images. */
+  --paper: #efeee9; /* papier légèrement gris, jamais blanc pur */
+  --paper-deep: #e4e2db; /* fond réservé sous une image en chargement */
+  --ink: #1a1a18; /* texte : contraste 15,8:1 sur le papier */
+  --ink-soft: #55534c; /* métadonnées : contraste 6,6:1 sur le papier */
+  --rule: #c8c6be;
+
+  --font-serif: 'Bodoni Moda Variable', 'Bodoni 72', 'Didot', Georgia, serif;
+  --font-sans: 'IBM Plex Sans Variable', system-ui, sans-serif;
+
+  --text-size: 1.0625rem;
+  --meta-size: 0.75rem;
+  --card-title-size: clamp(1.5rem, 1.2rem + 1.1vw, 2.1rem);
+  --display-size: clamp(2.75rem, 1.6rem + 5.5vw, 6.5rem);
+
+  --gutter: clamp(1rem, 0.4rem + 3vw, 4rem);
+  --page-max: 92rem;
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-size);
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--ink);
+  color: var(--paper);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

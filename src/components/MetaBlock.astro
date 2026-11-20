@@ -1,0 +1,76 @@
+---
+/**
+ * Le bloc de métadonnées. Unique composant du site pour cet usage.
+ *
+ * Il reçoit six paires label/valeur et rien d'autre : il ne sait pas s'il
+ * affiche une photo ou un projet de code, et ne doit jamais le savoir.
+ *
+ * Accessibilité : une liste de définitions. Les labels sont masqués à l'écran
+ * mais lus par les lecteurs d'écran (« Focale : 35 mm »). Les points médians
+ * sont du contenu CSS au texte alternatif vide, donc jamais vocalisés.
+ */
+import type { Meta } from '~/lib/meta';
+
+interface Props {
+  fields: Meta;
+}
+
+const { fields } = Astro.props;
+---
+
+<dl class="meta">
+  {
+    fields.map((field) => (
+      <div class="meta__field">
+        <dt class="meta__label">{field.label}</dt>
+        <dd class="meta__value">{field.value}</dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .meta {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: var(--meta-size);
+    line-height: 1.7;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--ink-soft);
+  }
+
+  /* Les six champs s'écoulent comme du texte, sur deux lignes de trois :
+     même hauteur et même rythme pour tous les blocs du site. */
+  .meta__field {
+    display: inline;
+    white-space: nowrap;
+  }
+
+  .meta__field:not(:nth-child(3n + 1))::before {
+    content: '·';
+    content: '·' / '';
+    margin-inline: 0.5em;
+  }
+
+  .meta__field:nth-child(3)::after {
+    content: '\A';
+    content: '\A' / '';
+    white-space: pre;
+  }
+
+  .meta__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .meta__value {
+    display: inline;
+    margin: 0;
+  }
+</style>
