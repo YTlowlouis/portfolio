@@ -54,7 +54,7 @@ const links = linksOf(work);
 
     <header class="work__head">
       <h1 class="work__title">{data.title}</h1>
-      <MetaBlock fields={toMeta(work)} />
+      <MetaBlock fields={toMeta(work)} size="large" />
     </header>
 
     <div class="work__body">
@@ -143,14 +143,13 @@ const links = linksOf(work);
   }
 
   .work__title {
-    max-width: 18ch;
+    max-width: 14ch;
     margin: 0 0 1rem;
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
     font-size: var(--display-size);
     font-weight: 400;
-    font-variation-settings: 'opsz' 96;
-    line-height: 0.98;
-    letter-spacing: -0.02em;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
     text-wrap: balance;
   }
 
@@ -173,9 +172,9 @@ const links = linksOf(work);
 
   .prose :global(:is(h2, h3)) {
     margin: 2.2em 0 0.6em;
-    font-family: var(--font-serif);
-    font-weight: 500;
-    line-height: 1.15;
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.1;
   }
 
   .prose :global(h2) {
@@ -201,8 +200,17 @@ const links = linksOf(work);
   }
 
   .work__links a {
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.2em;
+    font-size: var(--meta-size-large);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--signal);
+    text-underline-offset: 0.35em;
+  }
+
+  .work__links a:hover {
+    color: var(--signal);
   }
 
   .work__figures {
@@ -216,7 +224,7 @@ const links = linksOf(work);
     gap: 2rem var(--gutter);
     margin-top: clamp(5rem, 12vw, 9rem);
     padding-top: 1.5rem;
-    border-top: 1px solid var(--rule);
+    border-top: 2px solid var(--rule);
   }
 
   .pager__link {
@@ -244,15 +252,12 @@ const links = linksOf(work);
   }
 
   .pager__title {
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
     font-size: var(--card-title-size);
-    font-variation-settings: 'opsz' 96;
     line-height: 1.05;
   }
 
   .pager__link:hover .pager__title {
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.12em;
+    color: var(--signal);
   }
 </style>

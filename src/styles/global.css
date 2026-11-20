@@ -1,25 +1,29 @@
 /* Polices auto-hébergées (paquets npm Fontsource), servies depuis le site. */
-@import '@fontsource-variable/bodoni-moda/opsz.css';
+@import '@fontsource/gloock/index.css';
 @import '@fontsource-variable/ibm-plex-sans/index.css';
 
+/* Direction « Chambre noire » : papier, encre, et une seule couleur, le rouge
+   de la lampe inactinique du labo photo. Le rouge ne sert qu'aux données. */
 :root {
-  /* Couleurs. Pas d'accent : la couleur vient des images. */
-  --paper: #efeee9; /* papier légèrement gris, jamais blanc pur */
-  --paper-deep: #e4e2db; /* fond réservé sous une image en chargement */
-  --ink: #1a1a18; /* texte : contraste 15,8:1 sur le papier */
-  --ink-soft: #55534c; /* métadonnées : contraste 6,6:1 sur le papier */
-  --rule: #c8c6be;
+  --paper: #f2f0ea; /* papier baryté, jamais blanc pur */
+  --paper-deep: #e3e0d8; /* fond réservé sous une image en chargement */
+  --ink: #141412; /* texte : contraste 17:1 */
+  --ink-soft: #57544d; /* texte secondaire : contraste 6,7:1 */
+  --signal: #c81e12; /* rouge inactinique : contraste 4,9:1, lisible en petit */
+  --rule: #141412;
 
-  --font-serif: 'Bodoni Moda Variable', 'Bodoni 72', 'Didot', Georgia, serif;
+  --font-display: 'Gloock', 'Didot', 'Bodoni 72', Georgia, serif;
   --font-sans: 'IBM Plex Sans Variable', system-ui, sans-serif;
 
   --text-size: 1.0625rem;
   --meta-size: 0.75rem;
-  --card-title-size: clamp(1.5rem, 1.2rem + 1.1vw, 2.1rem);
-  --display-size: clamp(2.75rem, 1.6rem + 5.5vw, 6.5rem);
+  --meta-size-large: clamp(0.8125rem, 0.7rem + 0.4vw, 1rem);
+  --card-title-size: clamp(1.75rem, 1.2rem + 1.8vw, 3rem);
+  --display-size: clamp(3rem, 1.4rem + 7vw, 8rem);
+  --mega-size: clamp(4.5rem, 1rem + 18vw, 19rem);
 
-  --gutter: clamp(1rem, 0.4rem + 3vw, 4rem);
-  --page-max: 92rem;
+  --gutter: clamp(1rem, 0.4rem + 3vw, 3.5rem);
+  --page-max: 100rem;
 
   color-scheme: light;
 }
@@ -42,9 +46,9 @@ body {
   font-family: var(--font-sans);
   font-size: var(--text-size);
   line-height: 1.6;
-  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
 }
 
 img {
@@ -56,12 +60,12 @@ a {
 }
 
 :focus-visible {
-  outline: 2px solid var(--ink);
+  outline: 2px solid var(--signal);
   outline-offset: 3px;
 }
 
 ::selection {
-  background: var(--ink);
+  background: var(--signal);
   color: var(--paper);
 }
 
@@ -69,6 +73,7 @@ a {
   position: absolute;
   left: var(--gutter);
   top: 0.75rem;
+  z-index: 10;
   padding: 0.5rem 0.75rem;
   background: var(--ink);
   color: var(--paper);

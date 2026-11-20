@@ -3,27 +3,35 @@
  * Le bloc de métadonnées. Unique composant du site pour cet usage.
  *
  * Il reçoit six paires label/valeur et rien d'autre : il ne sait pas s'il
- * affiche une photo ou un projet de code, et ne doit jamais le savoir.
+ * affiche une photo, un projet de code ou le site lui-même, et ne doit
+ * jamais le savoir.
  *
  * Accessibilité : une liste de définitions. Les labels sont masqués à l'écran
  * mais lus par les lecteurs d'écran (« Focale : 35 mm »). Les points médians
  * sont du contenu CSS au texte alternatif vide, donc jamais vocalisés.
+ *
+ * Chaque valeur porte data-facet (sa forme normalisée) : c'est ce qui permet
+ * à la grille d'éteindre les cartes qui ne partagent pas la valeur survolée.
  */
 import type { Meta } from '~/lib/meta';
+import { slugify } from '~/lib/slug';
 
 interface Props {
   fields: Meta;
+  size?: 'normal' | 'large';
 }
 
-const { fields } = Astro.props;
+const { fields, size = 'normal' } = Astro.props;
 ---
 
-<dl class="meta">
+<dl class:list={['meta', `meta--${size}`]}>
   {
     fields.map((field) => (
       <div class="meta__field">
         <dt class="meta__label">{field.label}</dt>
-        <dd class="meta__value">{field.value}</dd>
+        <dd class="meta__value" data-facet={slugify(field.value)}>
+          {field.value}
+        </dd>
       </div>
     ))
   }
@@ -34,11 +42,16 @@ const { fields } = Astro.props;
     margin: 0;
     font-family: var(--font-sans);
     font-size: var(--meta-size);
-    line-height: 1.7;
-    letter-spacing: 0.09em;
+    font-weight: 500;
+    line-height: 1.75;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     font-variant-numeric: tabular-nums lining-nums;
-    color: var(--ink-soft);
+    color: var(--ink);
+  }
+
+  .meta--large {
+    font-size: var(--meta-size-large);
   }
 
   /* Les six champs s'écoulent comme du texte, sur deux lignes de trois :
@@ -48,10 +61,13 @@ const { fields } = Astro.props;
     white-space: nowrap;
   }
 
+  /* Le point médian, en rouge inactinique : la seule couleur du site. */
   .meta__field:not(:nth-child(3n + 1))::before {
     content: '·';
     content: '·' / '';
-    margin-inline: 0.5em;
+    margin-inline: 0.55em;
+    color: var(--signal);
+    font-weight: 700;
   }
 
   .meta__field:nth-child(3)::after {
@@ -72,5 +88,6 @@ const { fields } = Astro.props;
   .meta__value {
     display: inline;
     margin: 0;
+    transition: color 160ms ease-out;
   }
 </style>

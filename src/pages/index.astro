@@ -1,14 +1,55 @@
 ---
 import Base from '~/layouts/Base.astro';
 import WorkCard from '~/components/WorkCard.astro';
+import MetaBlock from '~/components/MetaBlock.astro';
 import { getWorks, workHref } from '~/lib/works';
-import { toMeta } from '~/lib/meta';
+import { toMeta, type Meta } from '~/lib/meta';
+import { slugify } from '~/lib/slug';
+import { SITE_BASE, SITE_NAME } from '~/lib/site';
 
 const works = await getWorks();
+const metas = works.map(toMeta);
+
+// Le site se présente avec la même grammaire que ses travaux : six champs.
+const years = works.map((work) => work.data.date.getFullYear());
+const siteMeta: Meta = [
+  { label: 'Discipline', value: 'Photographie' },
+  { label: 'Discipline', value: 'Code' },
+  { label: 'Travaux', value: `${works.length} travaux` },
+  { label: 'Période', value: `${Math.min(...years)}–${Math.max(...years)}` },
+  { label: 'Base', value: SITE_BASE },
+  { label: 'Statut', value: 'Disponible' },
+];
+
+// Survoler une valeur éteint toutes les cartes qui ne la partagent pas.
+// Une règle CSS par valeur présente dans la grille, générée au build :
+// aucun JavaScript côté client.
+const facets = [...new Set(metas.flatMap((meta) => meta.map((field) => slugify(field.value))))];
+const facetCss = facets
+  .map(
+    (f) =>
+      `main:has([data-facet="${f}"]:hover) .card:not(:has([data-facet="${f}"])){opacity:.14;filter:grayscale(1)}` +
+      `main:has([data-facet="${f}"]:hover) [data-facet="${f}"]{color:var(--signal)}`,
+  )
+  .join('\n');
+
+const [firstName, ...rest] = SITE_NAME.split(' ');
 ---
 
-<Base>
-  <h1 class="intro">Photographies et programmes, décrits de la même façon.</h1>
+<Base showName={false}>
+  <section class="hero" aria-labelledby="nom">
+    <h1 class="hero__name" id="nom">
+      <span class="hero__line">{firstName}</span>
+      <span class="hero__line hero__line--offset">{rest.join(' ')}</span>
+    </h1>
+    <div class="hero__about">
+      <MetaBlock fields={siteMeta} size="large" />
+      <p class="hero__lede">
+        Photographies et programmes, décrits avec les mêmes six données.
+        <span class="hero__hint">Survolez une valeur pour voir ce qui la partage.</span>
+      </p>
+    </div>
+  </section>
 
   <div class="grid">
     {
@@ -17,33 +58,93 @@ const works = await getWorks();
           href={workHref(work)}
           title={work.data.title}
           image={work.data.cover}
-          meta={toMeta(work)}
-          priority={index < 3}
+          meta={metas[index]!}
+          priority={index < 2}
         />
       ))
     }
   </div>
 </Base>
 
+<style set:html={facetCss}></style>
+
 <style>
-  .intro {
-    max-width: 14ch;
-    margin: clamp(3rem, 10vw, 9rem) 0 clamp(3.5rem, 9vw, 8rem);
-    font-family: var(--font-serif);
-    font-size: var(--display-size);
-    font-weight: 400;
-    font-variation-settings: 'opsz' 96;
-    line-height: 0.98;
-    letter-spacing: -0.02em;
-    text-wrap: balance;
+  .hero {
+    margin-block: clamp(1.5rem, 5vw, 4rem) clamp(4rem, 11vw, 10rem);
   }
 
-  /* Trois rangées de grille par carte (image, titre, métadonnées),
-     reprises par chaque carte en subgrid. */
+  .hero__name {
+    display: grid;
+    margin: 0 0 clamp(2rem, 5vw, 3.5rem);
+    font-family: var(--font-display);
+    font-size: var(--mega-size);
+    font-weight: 400;
+    line-height: 0.8;
+    letter-spacing: -0.035em;
+  }
+
+  .hero__line--offset {
+    justify-self: end;
+  }
+
+  /* Le point final du nom, en rouge : la tache de lumière inactinique. */
+  .hero__line--offset::after {
+    content: '.';
+    content: '.' / '';
+    color: var(--signal);
+  }
+
+  .hero__about {
+    display: grid;
+    gap: 1.5rem 3rem;
+    align-items: start;
+  }
+
+  @media (min-width: 56rem) {
+    .hero__about {
+      grid-template-columns: auto minmax(0, 26rem);
+      justify-content: space-between;
+    }
+  }
+
+  @media (hover: none) {
+    .hero__hint {
+      display: none;
+    }
+  }
+
+  .hero__lede {
+    margin: 0;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
-    column-gap: clamp(1.5rem, 4vw, 4rem);
-    row-gap: clamp(3.5rem, 8vw, 6.5rem);
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(3.5rem, 8vw, 7rem);
+  }
+
+  /* Sur écran large : douze colonnes, deux cartes par rangée, une grande
+     et une petite, qui alternent de côté à chaque rangée. */
+  @media (min-width: 48rem) {
+    .grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: clamp(1.5rem, 3vw, 3rem);
+    }
+
+    .grid > :global(.card:nth-child(4n + 1)),
+    .grid > :global(.card:nth-child(4n + 4)) {
+      grid-column: span 7;
+    }
+
+    .grid > :global(.card:nth-child(4n + 2)),
+    .grid > :global(.card:nth-child(4n + 3)) {
+      grid-column: span 5;
+    }
+  }
+
+  .grid :global(.meta__value) {
+    cursor: crosshair;
   }
 </style>
