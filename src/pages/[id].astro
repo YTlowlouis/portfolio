@@ -1,0 +1,258 @@
+---
+/**
+ * Page de détail, la même pour une série photo et un projet de code :
+ * grande image, titre, bloc de métadonnées, texte long, puis les images
+ * (galerie ou captures) et, s'il y en a, les liens externes.
+ */
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import { Picture } from 'astro:assets';
+import Base from '~/layouts/Base.astro';
+import MetaBlock from '~/components/MetaBlock.astro';
+import { toMeta } from '~/lib/meta';
+import { figuresOf, getWorks, linksOf, workHref, type Work } from '~/lib/works';
+
+export const getStaticPaths = (async () => {
+  const works = await getWorks();
+  return works.map((work, index) => ({
+    params: { id: work.id },
+    props: {
+      work,
+      // La grille va du plus récent au plus ancien : « suivant » descend dans le temps.
+      newer: works[index - 1],
+      older: works[index + 1],
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  work: Work;
+  newer: Work | undefined;
+  older: Work | undefined;
+}
+
+const { work, newer, older } = Astro.props;
+const { data } = work;
+const { Content } = await render(work);
+const figures = figuresOf(work);
+const links = linksOf(work);
+---
+
+<Base title={data.title} description={data.summary}>
+  <article class="work">
+    <figure class="work__cover">
+      <Picture
+        src={data.cover.src}
+        alt={data.cover.alt}
+        formats={['avif', 'webp']}
+        widths={[640, 960, 1440, 2000]}
+        sizes="(min-width: 92rem) 84rem, 92vw"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </figure>
+
+    <header class="work__head">
+      <h1 class="work__title">{data.title}</h1>
+      <MetaBlock fields={toMeta(work)} />
+    </header>
+
+    <div class="work__body">
+      <div class="prose">
+        <Content />
+      </div>
+
+      {
+        links.length > 0 && (
+          <ul class="work__links">
+            {links.map((link) => (
+              <li>
+                <a href={link.href} rel="noopener">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    {
+      figures.length > 0 && (
+        <div class="work__figures">
+          {figures.map((figure) => (
+            <figure class="work__figure">
+              <Picture
+                src={figure.src}
+                alt={figure.alt}
+                formats={['avif', 'webp']}
+                widths={[640, 960, 1440, 2000]}
+                sizes="(min-width: 92rem) 84rem, 92vw"
+              />
+            </figure>
+          ))}
+        </div>
+      )
+    }
+  </article>
+
+  <nav class="pager" aria-label="Autres travaux">
+    {
+      newer && (
+        <a class="pager__link pager__link--newer" href={workHref(newer)}>
+          <span class="pager__hint">Plus récent</span>
+          <span class="pager__title">{newer.data.title}</span>
+        </a>
+      )
+    }
+    {
+      older && (
+        <a class="pager__link pager__link--older" href={workHref(older)}>
+          <span class="pager__hint">Plus ancien</span>
+          <span class="pager__title">{older.data.title}</span>
+        </a>
+      )
+    }
+  </nav>
+</Base>
+
+<style>
+  .work__cover,
+  .work__figure {
+    margin: 0;
+  }
+
+  /* Les images gardent leur format d'origine, sans recadrage, et ne dépassent
+     jamais la hauteur de l'écran : posées sur la page comme dans un livre. */
+  .work__cover :global(img),
+  .work__figure :global(img) {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 88svh;
+    background: var(--paper-deep);
+  }
+
+  .work__cover {
+    margin-top: clamp(2rem, 6vw, 4.5rem);
+  }
+
+  .work__head {
+    margin-block: clamp(1.75rem, 4vw, 3rem) clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .work__title {
+    max-width: 18ch;
+    margin: 0 0 1rem;
+    font-family: var(--font-serif);
+    font-size: var(--display-size);
+    font-weight: 400;
+    font-variation-settings: 'opsz' 96;
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  /* Le texte occupe une colonne de lecture décalée vers la droite sur grand
+     écran, comme un texte de catalogue en regard de l'image. */
+  .work__body {
+    max-width: 38rem;
+  }
+
+  @media (min-width: 64rem) {
+    .work__body {
+      margin-inline-start: calc(100% / 3);
+    }
+  }
+
+  .prose :global(p) {
+    margin: 0 0 1.1em;
+    text-wrap: pretty;
+  }
+
+  .prose :global(:is(h2, h3)) {
+    margin: 2.2em 0 0.6em;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    line-height: 1.15;
+  }
+
+  .prose :global(h2) {
+    font-size: 1.75rem;
+  }
+
+  .prose :global(h3) {
+    font-size: 1.35rem;
+  }
+
+  .prose :global(a) {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+  }
+
+  .work__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .work__links a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .work__figures {
+    display: grid;
+    gap: clamp(2.5rem, 7vw, 6rem);
+    margin-top: clamp(4rem, 10vw, 8rem);
+  }
+
+  .pager {
+    display: grid;
+    gap: 2rem var(--gutter);
+    margin-top: clamp(5rem, 12vw, 9rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .pager__link {
+    display: grid;
+    gap: 0.35rem;
+    text-decoration: none;
+  }
+
+  @media (min-width: 40rem) {
+    .pager {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .pager__link--older {
+      grid-column: 2;
+      text-align: end;
+    }
+  }
+
+  .pager__hint {
+    font-size: var(--meta-size);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .pager__title {
+    font-family: var(--font-serif);
+    font-size: var(--card-title-size);
+    font-variation-settings: 'opsz' 96;
+    line-height: 1.05;
+  }
+
+  .pager__link:hover .pager__title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.12em;
+  }
+</style>

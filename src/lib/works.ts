@@ -13,3 +13,19 @@ export async function getWorks(): Promise<Work[]> {
 export function workHref(work: Work): string {
   return `/${work.id}`;
 }
+
+/** Les images qui suivent le texte : la galerie d'une série, les captures
+ *  d'un projet. La page de détail n'a pas besoin de savoir laquelle. */
+export function figuresOf(work: Work) {
+  return work.data.kind === 'photo' ? work.data.gallery : work.data.screenshots;
+}
+
+/** Liens externes de l'élément, dans l'ordre d'affichage. */
+export function linksOf(work: Work): { label: string; href: string }[] {
+  if (work.data.kind !== 'code') return [];
+  const { repo, demo } = work.data.links;
+  return [
+    ...(demo ? [{ label: 'Voir la démo', href: demo }] : []),
+    ...(repo ? [{ label: 'Voir le code source', href: repo }] : []),
+  ];
+}
