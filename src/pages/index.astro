@@ -1,0 +1,36 @@
+---
+/**
+ * Page provisoire de l'étape 1 : elle ne sert qu'à vérifier que la collection
+ * se charge, que le tri par date fonctionne et que toMeta() rend bien six champs
+ * pour chaque élément. Elle sera remplacée par la grille à l'étape 2.
+ */
+import { getCollection } from 'astro:content';
+import { toMeta } from '~/lib/meta';
+
+const works = (await getCollection('works', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portfolio · étape 1</title>
+  </head>
+  <body>
+    <h1>Contenu chargé : {works.length} éléments</h1>
+    <ol>
+      {
+        works.map((work) => (
+          <li>
+            <strong>{work.data.title}</strong> ({work.data.kind}, id « {work.id} »)
+            <br />
+            {toMeta(work).map((field) => field.value).join(' · ')}
+          </li>
+        ))
+      }
+    </ol>
+  </body>
+</html>
